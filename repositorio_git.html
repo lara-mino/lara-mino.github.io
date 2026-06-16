@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Science Visuals — Lara Mino</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f7f7f5; --bg3: #f0efe9;
+    --text: #1a1a18; --text2: #6b6b67; --text3: #9e9e9a;
+    --border: rgba(0,0,0,0.10); --border2: rgba(0,0,0,0.18);
+    --radius: 12px; --radius-sm: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a; --bg2: #242422; --bg3: #2c2c2a;
+      --text: #f0efe9; --text2: #a0a09c; --text3: #6b6b67;
+      --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.18);
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .page { max-width: 780px; margin: 0 auto; padding: 0 24px 80px; }
+  header { padding: 56px 0 40px; border-bottom: 0.5px solid var(--border); margin-bottom: 48px; }
+  .eyebrow { font-size: 12px; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 10px; text-transform: uppercase; }
+  header h1 { font-size: 32px; font-weight: 500; letter-spacing: -0.5px; margin-bottom: 10px; }
+  header p { font-size: 15px; color: var(--text2); max-width: 500px; }
+  .tags { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 11px; padding: 3px 12px; border-radius: 999px; border: 0.5px solid var(--border2); color: var(--text2); }
+  .section-label { font-size: 11px; letter-spacing: 0.08em; color: var(--text3); text-transform: uppercase; margin-bottom: 20px; }
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 24px; }
+  .card-title { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
+  .card-desc { font-size: 13px; color: var(--text2); line-height: 1.65; margin-bottom: 14px; }
+  .badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .badge { font-size: 11px; padding: 3px 10px; border-radius: 999px; }
+  .badge-blue   { background: #E6F1FB; color: #0C447C; }
+  .badge-teal   { background: #E1F5EE; color: #085041; }
+  .badge-purple { background: #EEEDFE; color: #3C3489; }
+  .badge-coral  { background: #FAECE7; color: #993C1D; }
+  .badge-amber  { background: #FAEEDA; color: #854F0B; }
+  @media (prefers-color-scheme: dark) {
+    .badge-blue   { background: #0C447C; color: #B5D4F4; }
+    .badge-teal   { background: #085041; color: #9FE1CB; }
+    .badge-purple { background: #3C3489; color: #CECBF6; }
+    .badge-coral  { background: #712B13; color: #F5C4B3; }
+    .badge-amber  { background: #633806; color: #FAC775; }
+  }
+  .controls { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .ctrl { display: flex; align-items: center; gap: 8px; }
+  .ctrl label { font-size: 13px; color: var(--text2); }
+  .ctrl span { font-size: 13px; font-weight: 500; min-width: 28px; }
+  input[type=range] { -webkit-appearance: none; height: 4px; border-radius: 2px; background: var(--border2); outline: none; cursor: pointer; width: 90px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--text); cursor: pointer; }
+  canvas { width: 100%; border-radius: 8px; background: var(--bg2); display: block; }
+  .stat-row { display: flex; gap: 10px; margin-top: 14px; }
+  .stat { flex: 1; background: var(--bg2); border-radius: var(--radius-sm); padding: 10px 14px; }
+  .stat-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  .stat-val { font-size: 20px; font-weight: 500; }
+  .sil-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .sil-label { font-size: 12px; color: var(--text3); white-space: nowrap; }
+  .sil-bg { flex: 1; height: 5px; background: var(--border); border-radius: 3px; }
+  .sil-fill { height: 5px; border-radius: 3px; transition: width 0.4s ease; }
+  .btn-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  button { font-size: 13px; padding: 7px 16px; border-radius: var(--radius-sm); border: 0.5px solid var(--border2); background: transparent; color: var(--text); cursor: pointer; font-family: inherit; transition: background 0.15s; }
+  button:hover { background: var(--bg2); }
+  button.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  button.primary:hover { opacity: 0.82; }
+  .divider { height: 0.5px; background: var(--border); margin: 40px 0 20px; }
+  footer { margin-top: 64px; padding-top: 24px; border-top: 0.5px solid var(--border); font-size: 12px; color: var(--text3); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  footer a { color: var(--text2); text-decoration: none; }
+  footer a:hover { color: var(--text); }
+  .note { font-size: 12px; color: var(--text3); margin-top: 10px; line-height: 1.5; }
+  .did-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .did-stat { background: var(--bg2); border-radius: var(--radius-sm); padding: 10px 14px; }
+  .did-stat-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  .did-stat-val { font-size: 18px; font-weight: 500; }
+  .did-stat-val.positive { color: #1D9E75; }
+  .did-stat-val.negative { color: #D85A30; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <p class="eyebrow">lara-mino.github.io</p>
+  <h1>Data Science Visuals</h1>
+  <p>Visualizaciones interactivas de conceptos estadísticos y de machine learning. Cada demo explora un tema del programa de estudio con código reproducible.</p>
+  <div class="tags">
+    <span class="tag">Python</span><span class="tag">Statistics</span>
+    <span class="tag">Machine Learning</span><span class="tag">Causal Inference</span><span class="tag">SQL</span>
+  </div>
+</header>
+
+<!-- ── 1. K-MEANS ─────────────────────────────────────── -->
+<p class="section-label">Unsupervised Learning</p>
+<div class="card">
+  <div class="card-title">K-Means Clustering — animación de convergencia</div>
+  <div class="card-desc">El algoritmo asigna cada punto al centroide más cercano y recalcula los centroides en cada iteración hasta converger. Cambiá K para ver cómo cambia la segmentación y el silhouette score.</div>
+  <div class="badge-row">
+    <span class="badge badge-blue">scikit-learn</span>
+    <span class="badge badge-teal">numpy</span>
+    <span class="badge badge-purple">matplotlib</span>
+  </div>
+  <div class="controls">
+    <div class="ctrl"><label>K (clusters)</label><input type="range" min="2" max="6" value="3" id="kSlider" step="1"><span id="kVal">3</span></div>
+    <div class="ctrl"><label>Puntos</label><input type="range" min="40" max="200" value="90" id="nSlider" step="10"><span id="nVal">90</span></div>
+  </div>
+  <canvas id="kmCanvas" height="300"></canvas>
+  <div class="stat-row">
+    <div class="stat"><div class="stat-label">Iteración</div><div class="stat-val" id="iterStat">—</div></div>
+    <div class="stat"><div class="stat-label">Inercia (WCSS)</div><div class="stat-val" id="inertiaStat">—</div></div>
+    <div class="stat"><div class="stat-label">Silhouette score</div><div class="stat-val" id="silStat">—</div></div>
+  </div>
+  <div class="sil-row">
+    <span class="sil-label">0</span>
+    <div class="sil-bg"><div class="sil-fill" id="silBar" style="width:0%;background:#1D9E75"></div></div>
+    <span class="sil-label">1 — mejor separación</span>
+  </div>
+  <div class="btn-row">
+    <button class="primary" id="btnRun">▶ Animar</button>
+    <button id="btnReset">Nuevos datos</button>
+  </div>
+  <p class="note">Silhouette score cercano a 1 indica clusters bien definidos. La inercia siempre baja al aumentar K — por eso no alcanza como métrica única para elegir K óptimo.</p>
+</div>
+
+<!-- ── 2. A/B TEST ─────────────────────────────────────── -->
+<div class="divider"></div>
+<p class="section-label">Statistical Inference</p>
+<div class="card">
+  <div class="card-title">A/B Testing — poder estadístico y p-values</div>
+  <div class="card-desc">Simulá un experimento: dos grupos con distintas tasas de conversión. Observá cómo el tamaño de muestra y la diferencia real entre grupos afectan el p-value y el poder estadístico.</div>
+  <div class="badge-row">
+    <span class="badge badge-blue">scipy.stats</span>
+    <span class="badge badge-coral">statsmodels</span>
+    <span class="badge badge-teal">numpy</span>
+  </div>
+  <div class="controls">
+    <div class="ctrl"><label>Conversión A</label><input type="range" min="1" max="50" value="10" id="convA" step="1"><span id="convAVal">10%</span></div>
+    <div class="ctrl"><label>Conversión B</label><input type="range" min="1" max="50" value="14" id="convB" step="1"><span id="convBVal">14%</span></div>
+    <div class="ctrl"><label>N por grupo</label><input type="range" min="50" max="5000" value="500" id="nAB" step="50"><span id="nABVal">500</span></div>
+  </div>
+  <canvas id="abCanvas" height="260"></canvas>
+  <div class="stat-row">
+    <div class="stat"><div class="stat-label">p-value</div><div class="stat-val" id="pvalStat">—</div></div>
+    <div class="stat"><div class="stat-label">Significativo (α=0.05)</div><div class="stat-val" id="sigStat">—</div></div>
+    <div class="stat"><div class="stat-label">Poder estadístico</div><div class="stat-val" id="powerStat">—</div></div>
+  </div>
+  <p class="note">El poder estadístico es la probabilidad de detectar un efecto real si existe. Convención: apuntar a ≥ 80%. Un p-value bajo sin poder suficiente puede ser un falso positivo.</p>
+</div>
+
+<!-- ── 3. DiD ──────────────────────────────────────────── -->
+<div class="divider"></div>
+<p class="section-label">Causal Inference</p>
+<div class="card">
+  <div class="card-title">Difference-in-Differences — estimación de efectos causales</div>
+  <div class="card-desc">¿Funcionó la intervención? DiD estima el impacto causal comparando cómo evolucionó el grupo tratado versus un control, antes y después del evento. Útil cuando el A/B no es viable.</div>
+  <div class="badge-row">
+    <span class="badge badge-purple">statsmodels</span>
+    <span class="badge badge-amber">pandas</span>
+    <span class="badge badge-teal">econometría</span>
+  </div>
+  <div class="controls">
+    <div class="ctrl"><label>Efecto real</label><input type="range" min="-30" max="30" value="12" id="didEffect" step="1"><span id="didEffectVal">+12</span></div>
+    <div class="ctrl"><label>Ruido</label><input type="range" min="0" max="20" value="5" id="didNoise" step="1"><span id="didNoiseVal">5</span></div>
+  </div>
+  <canvas id="didCanvas" height="300"></canvas>
+  <div class="did-grid">
+    <div class="did-stat"><div class="did-stat-label">Efecto estimado (DiD)</div><div class="did-stat-val" id="didEstVal">—</div></div>
+    <div class="did-stat"><div class="did-stat-label">Efecto real configurado</div><div class="did-stat-val" id="didRealVal">—</div></div>
+    <div class="did-stat"><div class="did-stat-label">Tendencia paralela</div><div class="did-stat-val" id="didParallel">✓ válida</div></div>
+    <div class="did-stat"><div class="did-stat-label">p-value (estimación)</div><div class="did-stat-val" id="didPval">—</div></div>
+  </div>
+  <p class="note">La línea punteada muestra el contrafáctico: qué hubiera pasado con el grupo tratado si no hubiera habido intervención. El efecto DiD es la distancia entre esa línea y el resultado real.</p>
+</div>
+
+<div class="divider"></div>
+<p class="section-label">About</p>
+
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
+    <div>
+      <div style="font-size:22px; font-weight:500; letter-spacing:-0.3px;">Lara Miño</div>
+      <div style="font-size:14px; color:var(--text2); margin-top:4px;">Senior Data Analyst</div>
+    </div>
+    <div style="font-size:13px; color:var(--text2); line-height:2; text-align:right;">
+      <a href="mailto:laraminob@gmail.com" style="color:var(--text2); text-decoration:none; display:block;">laraminob@gmail.com</a>
+      <a href="tel:+5491130375928" style="color:var(--text2); text-decoration:none; display:block;">+54 9 11 3037-5928</a>
+      <a href="https://github.com/lara-mino" target="_blank" style="color:var(--text2); text-decoration:none; display:block;">github.com/lara-mino</a>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; flex-wrap:wrap;">
+
+    <div>
+      <div style="font-size:11px; letter-spacing:0.07em; color:var(--text3); text-transform:uppercase; margin-bottom:14px;">Education</div>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div>
+          <div style="font-size:11px; color:var(--text3); margin-bottom:2px;">2024 — presente</div>
+          <div style="font-size:14px; font-weight:500; line-height:1.4;">Maestría en Economía y Desarrollo</div>
+          <div style="font-size:13px; color:var(--text2);">Universidad Nacional General Sarmiento</div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:var(--text3); margin-bottom:2px;">2014 — 2021</div>
+          <div style="font-size:14px; font-weight:500; line-height:1.4;">Lic. en Economía</div>
+          <div style="font-size:13px; color:var(--text2);">Universidad de Buenos Aires</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:11px; letter-spacing:0.07em; color:var(--text3); text-transform:uppercase; margin-bottom:14px;">Experience</div>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div>
+          <div style="font-size:11px; color:var(--text3); margin-bottom:2px;">2025 — presente</div>
+          <div style="font-size:14px; font-weight:500; line-height:1.4;">Sr. Data Analyst</div>
+          <div style="font-size:13px; color:var(--text2);">Bleett · conversational services</div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:var(--text3); margin-bottom:2px;">2024 — 2025</div>
+          <div style="font-size:14px; font-weight:500; line-height:1.4;">Data Analyst</div>
+          <div style="font-size:13px; color:var(--text2);">Wortise · app monetization LATAM</div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:var(--text3); margin-bottom:2px;">2023 — 2024</div>
+          <div style="font-size:14px; font-weight:500; line-height:1.4;">Data Analyst</div>
+          <div style="font-size:13px; color:var(--text2);">Superintendencia de Riesgos del Trabajo</div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:var(--text3); margin-bottom:2px;">2021 — 2023</div>
+          <div style="font-size:14px; font-weight:500; line-height:1.4;">Research Consultant</div>
+          <div style="font-size:13px; color:var(--text2);">CIECTI · Centro Interdisciplinario de Estudios en Ciencia, Tecnología e Innovación</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <span>Lara Miño · Data Analyst → Data Scientist</span>
+  <a href="https://github.com/lara-mino" target="_blank">github.com/lara-mino</a>
+</footer>
+</div>
+
+<script>
+// ── UTILS ────────────────────────────────────────────────
+function rg(mu,s){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return mu+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const COLORS=['#378ADD','#1D9E75','#D85A30','#7F77DD','#D4537E','#639922'];
+const COLORS_A=['rgba(56,138,221,0.20)','rgba(29,158,117,0.20)','rgba(216,90,48,0.20)','rgba(127,119,221,0.20)','rgba(212,83,126,0.20)','rgba(99,153,34,0.20)'];
+const ptStroke=isDark?'rgba(255,255,255,0.35)':'rgba(0,0,0,0.22)';
+const axisColor=isDark?'rgba(255,255,255,0.25)':'rgba(0,0,0,0.18)';
+const textColor=isDark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.55)';
+
+// ── 1. K-MEANS ───────────────────────────────────────────
+(function(){
+  const canvas=document.getElementById('kmCanvas');
+  const ctx=canvas.getContext('2d');
+  let W,H=300,pts=[],centroids=[],assignments=[],K=3,N=90,iter=0,running=false,af=null;
+  function resize(){W=canvas.parentElement.clientWidth-56;canvas.width=W;canvas.height=H;}
+  resize();
+  function genData(){
+    pts=[];const pad=70,centers=[];
+    for(let k=0;k<K;k++)centers.push([pad+Math.random()*(W-2*pad),40+Math.random()*(H-70)]);
+    const pc=Math.floor(N/K);
+    for(let k=0;k<K;k++){const n=(k===K-1)?N-pc*(K-1):pc;for(let i=0;i<n;i++)pts.push([rg(centers[k][0],42),rg(centers[k][1],30)]);}
+    initC();
+  }
+  function initC(){
+    centroids=[];assignments=new Array(pts.length).fill(-1);
+    const used=new Set();
+    for(let k=0;k<K;k++){let idx;do{idx=Math.floor(Math.random()*pts.length);}while(used.has(idx));used.add(idx);centroids.push([...pts[idx]]);}
+    iter=0;draw();stats();
+  }
+  function assign(){
+    let changed=false;
+    for(let i=0;i<pts.length;i++){let best=0,bD=Infinity;for(let k=0;k<K;k++){const d=(pts[i][0]-centroids[k][0])**2+(pts[i][1]-centroids[k][1])**2;if(d<bD){bD=d;best=k;}}if(assignments[i]!==best){assignments[i]=best;changed=true;}}
+    return changed;
+  }
+  function updateC(){for(let k=0;k<K;k++){const m=pts.filter((_,i)=>assignments[i]===k);if(!m.length)continue;centroids[k]=[m.reduce((s,p)=>s+p[0],0)/m.length,m.reduce((s,p)=>s+p[1],0)/m.length];}}
+  function wcss(){return pts.reduce((s,p,i)=>{const c=centroids[assignments[i]<0?0:assignments[i]];return s+(p[0]-c[0])**2+(p[1]-c[1])**2;},0);}
+  function sil(){
+    if(pts.length<4||K<2)return 0;let tot=0;
+    for(let i=0;i<pts.length;i++){
+      const ki=assignments[i];if(ki<0)continue;
+      const same=pts.filter((_,j)=>j!==i&&assignments[j]===ki);if(!same.length)continue;
+      const a=same.reduce((s,p)=>s+Math.sqrt((pts[i][0]-p[0])**2+(pts[i][1]-p[1])**2),0)/same.length;
+      let bMin=Infinity;
+      for(let k=0;k<K;k++){if(k===ki)continue;const oth=pts.filter((_,j)=>assignments[j]===k);if(!oth.length)continue;const b=oth.reduce((s,p)=>s+Math.sqrt((pts[i][0]-p[0])**2+(pts[i][1]-p[1])**2),0)/oth.length;if(b<bMin)bMin=b;}
+      if(bMin<Infinity)tot+=(bMin-a)/Math.max(a,bMin);
+    }
+    return tot/pts.length;
+  }
+  function stats(){
+    document.getElementById('iterStat').textContent=iter;
+    document.getElementById('inertiaStat').textContent=Math.round(wcss()).toLocaleString();
+    const s=sil();document.getElementById('silStat').textContent=s.toFixed(2);
+    document.getElementById('silBar').style.width=Math.max(0,Math.min(100,s*100))+'%';
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++){const k=assignments[i];ctx.beginPath();ctx.arc(pts[i][0],pts[i][1],4.5,0,Math.PI*2);ctx.fillStyle=k<0?'rgba(128,128,128,0.15)':COLORS_A[k%COLORS.length];ctx.strokeStyle=k<0?ptStroke:COLORS[k%COLORS.length];ctx.lineWidth=1.2;ctx.fill();ctx.stroke();}
+    for(let k=0;k<K;k++){const c=centroids[k];ctx.beginPath();ctx.arc(c[0],c[1],9,0,Math.PI*2);ctx.fillStyle=COLORS[k%COLORS.length];ctx.fill();ctx.beginPath();ctx.arc(c[0],c[1],9,0,Math.PI*2);ctx.strokeStyle=isDark?'rgba(255,255,255,0.8)':'white';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle=isDark?'rgba(255,255,255,0.95)':'white';ctx.font='500 11px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(k+1,c[0],c[1]);}
+  }
+  function animate(){if(!running)return;const changed=assign();updateC();iter++;draw();stats();if(!changed||iter>=30){running=false;document.getElementById('btnRun').textContent='▶ Animar';return;}setTimeout(()=>{if(running)af=requestAnimationFrame(animate);},420);}
+  document.getElementById('btnRun').addEventListener('click',()=>{if(running){running=false;cancelAnimationFrame(af);document.getElementById('btnRun').textContent='▶ Animar';}else{running=true;document.getElementById('btnRun').textContent='⏹ Detener';animate();}});
+  document.getElementById('btnReset').addEventListener('click',()=>{running=false;cancelAnimationFrame(af);document.getElementById('btnRun').textContent='▶ Animar';genData();});
+  document.getElementById('kSlider').addEventListener('input',function(){K=+this.value;document.getElementById('kVal').textContent=K;running=false;cancelAnimationFrame(af);document.getElementById('btnRun').textContent='▶ Animar';genData();});
+  document.getElementById('nSlider').addEventListener('input',function(){N=+this.value;document.getElementById('nVal').textContent=N;running=false;cancelAnimationFrame(af);document.getElementById('btnRun').textContent='▶ Animar';genData();});
+  genData();assign();draw();stats();
+})();
+
+// ── 2. A/B TEST ──────────────────────────────────────────
+(function(){
+  const canvas=document.getElementById('abCanvas');
+  const ctx=canvas.getContext('2d');
+  let W,H=260;
+  function resize(){W=canvas.parentElement.clientWidth-56;canvas.width=W;canvas.height=H;}
+  resize();
+
+  function normalPDF(x,mu,sigma){return Math.exp(-0.5*((x-mu)/sigma)**2)/(sigma*Math.sqrt(2*Math.PI));}
+  function normalCDF(x){const t=1/(1+0.2316419*Math.abs(x));const d=0.3989423*Math.exp(-x*x/2);const p=d*t*(0.3193815+t*(-0.3565638+t*(1.7814779+t*(-1.8212560+t*1.3302744))));return x>0?1-p:p;}
+  function ztest(pA,pB,n){
+    const p=(pA+pB)/2;const se=Math.sqrt(p*(1-p)*(2/n));
+    if(se===0)return{z:0,pval:1};
+    const z=Math.abs(pA-pB)/se;
+    return{z,pval:2*(1-normalCDF(z))};
+  }
+  function power(pA,pB,n,alpha){
+    const zAlpha=1.96;const p=(pA+pB)/2;
+    const seH0=Math.sqrt(p*(1-p)*(2/n));
+    const seH1=Math.sqrt(pA*(1-pA)/n+pB*(1-pB)/n);
+    if(seH0===0||seH1===0)return 0;
+    const delta=Math.abs(pA-pB);
+    const z=(delta-zAlpha*seH0)/seH1;
+    return normalCDF(z);
+  }
+
+  function draw(){
+    const pA=+document.getElementById('convA').value/100;
+    const pB=+document.getElementById('convB').value/100;
+    const n=+document.getElementById('nAB').value;
+    const res=ztest(pA,pB,n);
+    const pwr=power(pA,pB,n,0.05);
+    document.getElementById('pvalStat').textContent=res.pval<0.001?'< 0.001':res.pval.toFixed(3);
+    document.getElementById('sigStat').textContent=res.pval<0.05?'✓ Sí':'✗ No';
+    document.getElementById('sigStat').style.color=res.pval<0.05?'#1D9E75':'#D85A30';
+    document.getElementById('powerStat').textContent=(pwr*100).toFixed(0)+'%';
+    document.getElementById('powerStat').style.color=pwr>=0.8?'#1D9E75':pwr>=0.5?'#BA7517':'#D85A30';
+
+    ctx.clearRect(0,0,W,H);
+    const pad={l:40,r:20,t:20,b:40};
+    const pw=W-pad.l-pad.r,ph=H-pad.t-pad.b;
+
+    // distributions of proportions
+    const seA=Math.sqrt(pA*(1-pA)/n);
+    const seB=Math.sqrt(pB*(1-pB)/n);
+    const mu=Math.min(pA,pB)-4*Math.max(seA,seB);
+    const mx=Math.max(pA,pB)+4*Math.max(seA,seB);
+    const xScale=v=>(v-mu)/(mx-mu)*pw+pad.l;
+
+    // find peak for y scale
+    let peakY=0;
+    for(let i=0;i<=200;i++){const x=mu+(mx-mu)*i/200;peakY=Math.max(peakY,normalPDF(x,pA,seA),normalPDF(x,pB,seB));}
+    const yScale=v=>pad.t+ph-(v/peakY)*ph*0.88;
+
+    // fill overlap zone
+    ctx.beginPath();
+    for(let i=0;i<=300;i++){
+      const x=mu+(mx-mu)*i/300;
+      const y=Math.min(normalPDF(x,pA,seA),normalPDF(x,pB,seB));
+      i===0?ctx.moveTo(xScale(x),yScale(y)):ctx.lineTo(xScale(x),yScale(y));
+    }
+    ctx.lineTo(xScale(mx),yScale(0));ctx.lineTo(xScale(mu),yScale(0));ctx.closePath();
+    ctx.fillStyle='rgba(127,119,221,0.15)';ctx.fill();
+
+    // curve A
+    ctx.beginPath();
+    for(let i=0;i<=300;i++){const x=mu+(mx-mu)*i/300;const y=normalPDF(x,pA,seA);i===0?ctx.moveTo(xScale(x),yScale(y)):ctx.lineTo(xScale(x),yScale(y));}
+    ctx.strokeStyle='#378ADD';ctx.lineWidth=2;ctx.stroke();
+
+    // curve B
+    ctx.beginPath();
+    for(let i=0;i<=300;i++){const x=mu+(mx-mu)*i/300;const y=normalPDF(x,pB,seB);i===0?ctx.moveTo(xScale(x),yScale(y)):ctx.lineTo(xScale(x),yScale(y));}
+    ctx.strokeStyle='#1D9E75';ctx.lineWidth=2;ctx.stroke();
+
+    // vertical lines at means
+    ctx.setLineDash([4,3]);ctx.lineWidth=1;
+    ctx.strokeStyle='#378ADD';ctx.beginPath();ctx.moveTo(xScale(pA),pad.t);ctx.lineTo(xScale(pA),pad.t+ph);ctx.stroke();
+    ctx.strokeStyle='#1D9E75';ctx.beginPath();ctx.moveTo(xScale(pB),pad.t);ctx.lineTo(xScale(pB),pad.t+ph);ctx.stroke();
+    ctx.setLineDash([]);
+
+    // axis
+    ctx.beginPath();ctx.moveTo(pad.l,pad.t+ph);ctx.lineTo(pad.l+pw,pad.t+ph);ctx.strokeStyle=axisColor;ctx.lineWidth=1;ctx.stroke();
+
+    // labels
+    ctx.font='12px system-ui';ctx.fillStyle='#378ADD';ctx.textAlign='center';
+    ctx.fillText('A: '+Math.round(pA*100)+'%',xScale(pA),pad.t+ph+18);
+    ctx.fillStyle='#1D9E75';
+    ctx.fillText('B: '+Math.round(pB*100)+'%',xScale(pB),pad.t+ph+18);
+
+    // legend
+    ctx.font='11px system-ui';ctx.fillStyle=textColor;ctx.textAlign='left';
+    ctx.fillStyle='#7F77DD';ctx.fillText('← zona de solapamiento',pad.l+8,pad.t+14);
+  }
+
+  ['convA','convB','nAB'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',function(){
+      const labels={convA:'convAVal',convB:'convBVal',nAB:'nABVal'};
+      const suffix=id==='nAB'?'':'%';
+      document.getElementById(labels[id]).textContent=this.value+suffix;
+      draw();
+    });
+  });
+  draw();
+})();
+
+// ── 3. DiD ───────────────────────────────────────────────
+(function(){
+  const canvas=document.getElementById('didCanvas');
+  const ctx=canvas.getContext('2d');
+  let W,H=300;
+  function resize(){W=canvas.parentElement.clientWidth-56;canvas.width=W;canvas.height=H;}
+  resize();
+
+  function rg(mu,s){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return mu+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+  function draw(){
+    const effect=+document.getElementById('didEffect').value;
+    const noise=+document.getElementById('didNoise').value;
+    document.getElementById('didEffectVal').textContent=(effect>=0?'+':'')+effect;
+    document.getElementById('didNoiseVal').textContent=noise;
+
+    // Simulate: 4 time points, intervention at t=2
+    const T=[0,1,2,3];
+    const baseC=[50,52,54,56]; // control trend
+    const baseT=[48,50,52,54]; // treated trend (parallel before)
+    const treatPost=baseT.map((v,i)=>i>=2?v+effect:v);
+
+    // add noise
+    const obsC=baseC.map(v=>v+rg(0,noise));
+    const obsT=treatPost.map(v=>v+rg(0,noise));
+
+    // DiD estimate
+    const did=(obsT[3]-obsT[1])-(obsC[3]-obsC[1]);
+    // counterfactual for treated
+    const cfSlope=(obsC[3]-obsC[1])/2;
+    const cf=[obsT[1],obsT[1]+cfSlope*1,obsT[1]+cfSlope*2];
+
+    // simple t-stat approximation
+    const se=Math.abs(noise||1)*0.4;
+    const tstat=Math.abs(did)/se;
+    const pval=2*(1-Math.min(0.9999,0.5+0.5*(1-Math.exp(-0.717*tstat-0.416*tstat*tstat))));
+
+    document.getElementById('didEstVal').textContent=(did>=0?'+':'')+did.toFixed(1);
+    document.getElementById('didEstVal').className='did-stat-val'+(did>=0?' positive':' negative');
+    document.getElementById('didRealVal').textContent=(effect>=0?'+':'')+effect;
+    document.getElementById('didPval').textContent=pval<0.001?'< 0.001':pval.toFixed(3);
+
+    ctx.clearRect(0,0,W,H);
+    const pad={l:50,r:20,t:20,b:40};
+    const pw=W-pad.l-pad.r,ph=H-pad.t-pad.b;
+
+    const allY=[...obsC,...obsT,...cf];
+    const minY=Math.min(...allY)-8,maxY=Math.max(...allY)+8;
+    const xS=i=>pad.l+i*(pw/3);
+    const yS=v=>pad.t+ph-(v-minY)/(maxY-minY)*ph;
+
+    // grid
+    ctx.strokeStyle=axisColor;ctx.lineWidth=0.5;
+    for(let i=0;i<=4;i++){const y=pad.t+ph*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+pw,y);ctx.stroke();}
+    for(let i=0;i<=4;i++){const x=pad.l+pw*i/4;ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+ph);ctx.stroke();}
+
+    // intervention line
+    ctx.setLineDash([]);ctx.strokeStyle=isDark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.12)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(xS(2),pad.t);ctx.lineTo(xS(2),pad.t+ph);ctx.stroke();
+    ctx.fillStyle=textColor;ctx.font='11px system-ui';ctx.textAlign='center';
+    ctx.fillText('intervención',xS(2),pad.t+10);
+
+    // counterfactual (dashed)
+    ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(216,90,48,0.6)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(xS(1),yS(obsT[1]));
+    for(let i=0;i<cf.length;i++)ctx.lineTo(xS(i+1),yS(cf[i]));
+    ctx.stroke();ctx.setLineDash([]);
+
+    // control line
+    ctx.strokeStyle='#378ADD';ctx.lineWidth=2;
+    ctx.beginPath();T.forEach((t,i)=>{i===0?ctx.moveTo(xS(t),yS(obsC[i])):ctx.lineTo(xS(t),yS(obsC[i]));});ctx.stroke();
+    T.forEach((t,i)=>{ctx.beginPath();ctx.arc(xS(t),yS(obsC[i]),4,0,Math.PI*2);ctx.fillStyle='#378ADD';ctx.fill();});
+
+    // treated line
+    ctx.strokeStyle='#1D9E75';ctx.lineWidth=2;
+    ctx.beginPath();T.forEach((t,i)=>{i===0?ctx.moveTo(xS(t),yS(obsT[i])):ctx.lineTo(xS(t),yS(obsT[i]));});ctx.stroke();
+    T.forEach((t,i)=>{ctx.beginPath();ctx.arc(xS(t),yS(obsT[i]),4,0,Math.PI*2);ctx.fillStyle='#1D9E75';ctx.fill();});
+
+    // DiD arrow at t=3
+    if(Math.abs(did)>0.5){
+      const x3=xS(3),y3real=yS(obsT[3]),y3cf=yS(cf[2]);
+      ctx.strokeStyle='#D85A30';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(x3+10,y3cf);ctx.lineTo(x3+10,y3real);ctx.stroke();
+      ctx.fillStyle='#D85A30';ctx.font='11px system-ui';ctx.textAlign='left';
+      ctx.fillText('DiD',x3+14,(y3real+y3cf)/2+4);
+    }
+
+    // axes
+    ctx.strokeStyle=axisColor;ctx.lineWidth=1;ctx.setLineDash([]);
+    ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,pad.t+ph);ctx.lineTo(pad.l+pw,pad.t+ph);ctx.stroke();
+
+    // y labels
+    ctx.fillStyle=textColor;ctx.font='11px system-ui';ctx.textAlign='right';
+    for(let i=0;i<=4;i++){const v=minY+(maxY-minY)*i/4;ctx.fillText(v.toFixed(0),pad.l-6,yS(v)+4);}
+
+    // x labels
+    ctx.textAlign='center';
+    ['t-2','t-1','t+1','t+2'].forEach((l,i)=>{ctx.fillText(l,xS(i),pad.t+ph+18);});
+
+    // legend
+    ctx.textAlign='left';
+    ctx.fillStyle='#378ADD';ctx.fillText('● Control',pad.l+4,pad.t+20);
+    ctx.fillStyle='#1D9E75';ctx.fillText('● Tratado',pad.l+80,pad.t+20);
+    ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(216,90,48,0.6)';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(pad.l+155,pad.t+15);ctx.lineTo(pad.l+175,pad.t+15);ctx.stroke();
+    ctx.setLineDash([]);ctx.fillStyle=textColor;ctx.fillText('contrafáctico',pad.l+178,pad.t+20);
+  }
+
+  ['didEffect','didNoise'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',function(){
+      const labels={didEffect:'didEffectVal',didNoise:'didNoiseVal'};
+      document.getElementById(labels[id]).textContent=(id==='didEffect'&&+this.value>=0?'+':'')+this.value;
+      draw();
+    });
+  });
+  draw();
+})();
+</script>
+</body>
+</html>
